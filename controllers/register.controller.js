@@ -38,16 +38,16 @@ module.exports = {
       return res.redirect("/auth/register");
     }
 
+    if (user?.email) {
+      req.flash("msg1", "Email đã tồn tại");
+      return res.redirect("/auth/register");
+    }
+
     if (email) {
       const hashedPassword = await bcrypt.hash(password[0], 10);
       await User.create({ email, password: hashedPassword });
       req.flash("msg", "Đăng ký thành công");
       return res.redirect("/auth/login");
-    }
-
-    if (email === user.email) {
-      req.flash("msg1", "Email đã tồn tại");
-      return res.redirect("/auth/register");
     }
 
     res.redirect("/auth/register");

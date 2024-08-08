@@ -50,7 +50,7 @@ module.exports = {
         id: user.id,
         name: user.name,
         email: user.email,
-        status: user.status,
+        // status: user.status,
       };
     }
 
