@@ -18,9 +18,7 @@ module.exports = {
     const errors = {};
 
     // console.log(email, password[1], password[0]);
-    // if (!email & !password[0] & password[1]) {
-    //   req.flash("msg2", "Vui lòng nhập đầy đủ thông tin thông tin");
-    // }
+
     if (!email) {
       errors.email = "Vui lòng nhập email";
     }

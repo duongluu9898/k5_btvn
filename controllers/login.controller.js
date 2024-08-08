@@ -58,9 +58,9 @@ module.exports = {
       console.log(user.status);
 
       req.flash("msg", "Tài khoản của bạn đã bị khóa");
-      return res.redirect("/auth/login");
+      return res.redirect("/auth/logout");
     }
 
-    res.redirect("/");
+    res.redirect("/account");
   },
 };
