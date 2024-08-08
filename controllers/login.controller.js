@@ -2,8 +2,6 @@ const { User } = require("../models/index");
 const bcrypt = require("bcrypt");
 module.exports = {
   index: (req, res) => {
-    console.log(req.session.user);
-
     if (req.session.user) {
       return res.redirect("/");
     }
