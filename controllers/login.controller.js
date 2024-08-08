@@ -50,7 +50,15 @@ module.exports = {
         id: user.id,
         name: user.name,
         email: user.email,
+        status: user.status,
       };
+    }
+
+    if (user.status === 0) {
+      console.log(user.status);
+
+      req.flash("msg", "Tài khoản của bạn đã bị khóa");
+      return res.redirect("/auth/login");
     }
 
     res.redirect("/");
