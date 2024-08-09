@@ -5,7 +5,7 @@ module.exports = {
     const email = req.session.user.email;
     const errors = req.flash("errors");
     const msg = req.flash("msg");
-    await res.render("password", {
+    await res.render("account/password", {
       layout: "auth/layout",
       email,
       msg,
