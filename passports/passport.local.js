@@ -16,6 +16,8 @@ module.exports = new LocalStrategy(
       return done(null, false, { message: "Tài khoản không tồn tại" });
     }
     const result = bcrypt.compareSync(password, user.password);
+    console.log(email, password, user.password);
+
     if (!result) {
       return done(null, false, {
         message: "Mật khẩu hoặc tài khoản không chính xác",

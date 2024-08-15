@@ -28,12 +28,7 @@ module.exports = {
           const user = await User.findOne({
             where: { email, provider_id: provider.id },
           });
-          if (user === "undefined") {
-            return false;
-          }
-          if (user) {
-            return !user.length;
-          }
+          return user;
         }),
     });
 

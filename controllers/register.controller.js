@@ -53,7 +53,7 @@ module.exports = {
 
     // check
     if (body) {
-      const hashedPassword = await bcrypt.hash(password[0], 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       await User.create({
         email,
         password: hashedPassword,
