@@ -7,15 +7,6 @@ module.exports = {
     const userAgent = headers["user-agent"];
     const device = deviceDetector.parse(userAgent);
     const { client, os } = device;
-    // console.log(client.name, os.name);
-    // console.log(headers);
-    console.log(device);
-
-    // const botDetector = new BotDetector();
-    // const bot = botDetector.parse(userAgent);
-    // if (bot) {
-    //   console.log(bot);
-    // }
 
     const name = req.session.user.name;
     const email = req.session.user.email;

@@ -1,9 +1,11 @@
 <div class="w-50 mx-auto">
     <h2 class="text-center">Đăng ký</h2>
-    <span class="text-danger text-center">
-      <%= msg1 %>
-      
-    </span>
+    <% if (msg.length) { %>
+      <div class="alert alert-success mt-2"><%= msg %></div>
+    <% } %>
+    <% if (msg1.length) { %>
+      <div class="alert alert-danger mt-2"><%= msg1 %></div>
+    <% } %>
     <form action="" method="post">
       <div class="mb-3">
         <label for="">Email</label>
@@ -13,8 +15,7 @@
           class="form-control"
           placeholder="Email..."
         />
-        <span class="text-danger"><%= errors?.email ? errors?.email : "" %></span>
-
+        <span class="text-danger"><%= req.errors.email %></span>
       </div>
       <div class="mb-3">
         <label for="">Mật khẩu</label>
@@ -24,23 +25,25 @@
           class="form-control"
           placeholder="Mật khẩu..."
         />
-        <span class="text-danger"><%= errors?.password ? errors?.password : "" %></span>
-
+        <span class="text-danger"><%= req.errors.password %></span>
       </div>
 
       <div class="mb-3">
         <label for="">Nhập lại mật khẩu</label>
         <input
           type="password"
-          name="password"
+          name="reTypePassword"
           class="form-control"
           placeholder="Mật khẩu..."
         />
-        <span class="text-danger"><%= errors?.password ? errors?.password : "" %></span>
-
+        <span class="text-danger"><%= req.errors.reTypePassword %></span>
       </div>
       <div class="d-grid">
         <button type="submit" class="btn btn-primary">Đăng ký</button>
       </div>
     </form>
+
+    <div class="d-grid">
+      <a href="/auth/login" class="text-center text-decoration-none mt-2 text-primary">Quay lại đăng nhập</a>
+    </div>
   </div>

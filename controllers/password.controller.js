@@ -1,53 +1,59 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models/index");
+const { string } = require("yup");
 module.exports = {
   index: async (req, res) => {
-    const email = req.session.user.email;
-    const errors = req.flash("errors");
-    const msg = req.flash("msg");
-    await res.render("account/password", {
-      layout: "auth/layout",
-      email,
-      msg,
-      errors: errors.length ? errors[0] : {},
+    const msgError = req.flash("msgError");
+    const msgSuccess = req.flash("msgSuccess");
+    await res.render("auth/password", {
+      msgError,
+      msgSuccess,
+      req,
     });
   },
 
   handlePassword: async (req, res) => {
-    const password = req.body.password;
-    console.log(password[0], password[1], password[2]);
-    const email = req.session.user.email;
-    const user = await User.findOne({ where: { email } });
-    const errors = {};
-
     //validate the password
-    if (!password[0]) {
-      errors.password = "Vui lòng nhập mật khẩu";
-    }
-    if (!password[1]) {
-      errors.password = "Vui lòng nhập mật khẩu";
-    }
-    if (!password[2]) {
-      errors.password = "Vui lòng nhập mật khẩu";
-    }
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword;
+    const reTypePassword = req.body.reTypePassword;
+    const { user: id } = req.session.passport;
+    console.log(newPassword, reTypePassword);
 
-    if (password[2] !== password[1]) {
-      errors.password = "Mật khẩu nhập lại không đúng";
-    }
-    const result = await bcrypt.compare(password[0], user.password);
+    const body = await req.validate(req.body, {
+      oldPassword: string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(6, "Mật khẩu phải ít nhất 6 kí tự"),
+      newPassword: string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(6, "Mật khẩu phải ít nhất 6 kí tự"),
+      reTypePassword: string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(6, "Mật khẩu phải ít nhất 6 kí tự")
+        .test("check-password", "Mật khẩu phải giống nhau", async () => {
+          if (newPassword !== reTypePassword) {
+            return false;
+          }
+          if (newPassword === reTypePassword) {
+            return true;
+          }
+        }),
+    });
 
+    const user = await User.findOne({
+      where: { id },
+    });
+    const result = await bcrypt.compare(oldPassword, user.password);
     if (!result) {
-      req.flash("msg", "Mật khẩu cũ của bạn không đúng");
+      req.flash("msgError", "Mật khẩu cũ của bạn không đúng");
     }
-    if (Object.keys(errors).length) {
-      req.flash("errors", errors);
-      return res.redirect("/password");
-    }
-    if (password[1] === password[2]) {
-      const hashedPassword = await bcrypt.hash(password[2], 10);
-      await User.update({ password: hashedPassword }, { where: { email } });
-      req.flash("msg", "Đổi mật khẩu thành công");
-      return res.redirect("/auth/login");
+    if (body) {
+      if (newPassword === reTypePassword) {
+        const hashedPassword = await bcrypt.hash(reTypePassword, 10);
+        await User.update({ password: hashedPassword }, { where: { id } });
+        req.flash("msgSuccess", "Đổi mật khẩu thành công");
+        return res.redirect("/");
+      }
     }
 
     res.redirect("/password");

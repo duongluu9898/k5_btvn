@@ -1,53 +1,67 @@
 const bcrypt = require("bcrypt");
-const { User } = require("../models/index");
+const { User, Provider } = require("../models/index");
+const { string } = require("yup");
 module.exports = {
   index: (req, res) => {
+    const msg = req.flash("msg");
     const msg1 = req.flash("msg1");
-    const errors = req.flash("errors");
     res.render("auth/register", {
-      layout: "auth/layout",
+      msg,
+      req,
       msg1,
-      errors: errors.length ? errors[0] : {},
     });
   },
 
   handleRegister: async (req, res) => {
     const { email } = req.body;
     const { password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    const errors = {};
+    const provider = await Provider.findOne({ where: { name: "email" } });
+    const user = await User.findOne({
+      where: { email, provider_id: provider.id },
+    });
 
-    // console.log(email, password[1], password[0]);
+    //validate
+    const body = await req.validate(req.body, {
+      email: string()
+        .required("Vui lòng nhập email")
+        .email("Email không đúng định dạng"),
 
-    if (!email) {
-      errors.email = "Vui lòng nhập email";
-    }
-    if (!password[0]) {
-      errors.password = "Vui lòng nhập mật khẩu";
-    }
-    if (!password[1]) {
-      errors.password = "Vui lòng nhập mật khẩu";
-    }
-    if (password[0] !== password[1]) {
-      errors.password = "Mật khẩu nhập lại không đúng";
-    }
-    if (Object.keys(errors).length) {
-      req.flash("errors", errors);
-      return res.redirect("/auth/register");
-    }
+      password: string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(6, "Mật khẩu phải ít nhất 6 kí tự"),
+      reTypePassword: string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(6, "Mật khẩu phải ít nhất 6 kí tự")
+        .test("check-password", "Mật khẩu phải giống nhau", async () => {
+          const password = req.body.password;
+          const reTypePassword = req.body.reTypePassword;
+          if (password === reTypePassword) {
+            return true;
+          }
+          if (password !== reTypePassword) {
+            return false;
+          }
+        }),
+    });
+
+    console.log(body);
 
     if (user?.email) {
       req.flash("msg1", "Email đã tồn tại");
       return res.redirect("/auth/register");
     }
 
-    if (email) {
+    // check
+    if (body) {
       const hashedPassword = await bcrypt.hash(password[0], 10);
-      await User.create({ email, password: hashedPassword });
+      await User.create({
+        email,
+        password: hashedPassword,
+        provider_id: 1,
+      });
       req.flash("msg", "Đăng ký thành công");
-      return res.redirect("/auth/login");
+      return res.redirect("/auth/register");
     }
-
     res.redirect("/auth/register");
   },
 };
